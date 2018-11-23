@@ -8,13 +8,28 @@ engine = create_engine(config.database_uri)
 
 
 
-def find_Q(name):
+def get_mods1():
     with engine.connect() as con:
-        
+        rs = con.execute("SELECT frequent_ID as ID,bars.name as bar, bars.state as bar_state, drinkers.state as drinker_state, drinkers.name as drinker 			FROM bars 			JOIN drinkers ON bars.state = drinkers.state 			JOIN frequents ON  frequents.drinker_id = drinkers.drinker_id and frequents.bar_id = bars.bar_id             ORDER BY RAND()             LIMIT 10")
+        return [dict(row) for row in rs]
+
+def get_mods2():
+    with engine.connect() as con:
+        rs = con.execute("SELECT bills.bill_ID, bars.name, schedules.open, schedules.close, bills.time 			FROM bars 			JOIN schedules ON bars.bar_ID = schedules.bar_ID             JOIN bills ON bars.bar_ID = bills.bar_ID 			ORDER BY RAND()             LIMIT 10")
+        return [dict(row) for row in rs]
+
+def get_mods3():
+    with engine.connect() as con:
+        rs = con.execute("SELECT frequent_ID as ID,bars.name as bar, bars.state as bar_state, drinkers.state as drinker_state, drinkers.name as drinker 			FROM bars 			JOIN drinkers ON bars.state = drinkers.state 			JOIN frequents ON  frequents.drinker_id = drinkers.drinker_id and frequents.bar_id = bars.bar_id             ORDER BY RAND()             LIMIT 10")
+        return [dict(row) for row in rs]
+
+def find_mod(name):
+    with engine.connect() as con:
         query = sql.text(name)
         rs = con.execute(query)
         if rs is None:
-                return None
+                return ''
+        
         return [dict(row) for row in rs]
 
         

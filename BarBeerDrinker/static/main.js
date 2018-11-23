@@ -646,10 +646,6 @@ var BarsService = /** @class */ (function () {
     BarsService.prototype.getBars = function () {
         return this.http.get('/api/bar');
     };
-    BarsService.prototype.getQ = function (title) {
-        console.log(title);
-        return this.http.get('/api/modification/' + title);
-    };
     BarsService.prototype.getBar = function (bar) {
         return this.http.get('/api/bar/' + bar);
     };
@@ -1089,6 +1085,7 @@ var DrinkerDetailsComponent = /** @class */ (function () {
         this.route = route;
         route.paramMap.subscribe(function (paramMap) {
             _this.drinkerName = paramMap.get('drinker');
+            console.log(_this.drinkerName);
             drinkerService.getDrinker(_this.drinkerName).subscribe(function (data) {
                 _this.drinkerDetails = data;
             }, function (error) {
@@ -1378,7 +1375,7 @@ module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"jumbotron jumbotron-fluid\">\n  <div class=\"container\">\n    <h1 class=\"display-4\">Modification Page</h1>\n\n  </div>\n</div>\n<div class=\"container\">\n    <input type=\"text\"  #titleInput>\n</div>\n<div class=\"container\">\n  \n  <button type=\"submit\" (click) = 'addTodo(titleInput.value)'>Submit</button>\n</div>\n<div class=\"container\">\n    <p>{{ out }}</p>\n  </div>"
+module.exports = "<div class=\"jumbotron jumbotron-fluid\">\n  <div class=\"container\">\n    <h1 class=\"display-4\">Modification Page</h1>\n\n  </div>\n</div>\n<div>\n<div class=\"container\">\n    <input type=\"text\"  #titleInput>\n</div>\n<div class=\"container\">\n  \n  <button type=\"submit\" (click) = 'onClick(titleInput.value)'>Submit</button>\n</div>\n<div class=\"container\">\n    <p>{{ out }}</p>\n  </div>\n</div>\n\n<h1>Pattern Verification</h1>\n<h4>Pattern 1</h4>\n<div class=\"container\">\n\n    <p-table [value]=\"mod1\" >\n      <ng-template pTemplate=\"header\">\n          <tr>\n            <th>ID</th>\n            <th>Bar</th>\n            <th>Bar State</th>\n            <th>Drinker State</th>\n            <th>Drinker</th>\n          </tr>\n      </ng-template>\n      <ng-template pTemplate=\"body\" let-bar>\n          <tr>\n            <td>{{ bar.ID }}</td>\n            <td>\n              <a routerLink=\"/bars/{{ bar.name }}\">\n                {{ bar.bar }}\n              </a>\n            </td>\n            <td>{{ bar.bar_state }}</td>\n            <td>{{ bar.drinker_state }}</td>\n            <td>\n                <a routerLink=\"/bars/{{ bar.name }}\">\n              {{ bar.drinker }}</a>\n            </td>\n\n          </tr>\n      </ng-template>\n    </p-table>\n  </div>\n  <p>Query: \n      SELECT frequent_ID as ID,bars.name as bar, bars.state as bar_state, drinkers.state as drinker_state, drinkers.name as drinker\n            FROM bars\n            JOIN drinkers ON bars.state = drinkers.state\n            JOIN frequents ON  frequents.drinker_id = drinkers.drinker_id and frequents.bar_id = bars.bar_id\n                  ORDER BY RAND()\n                  LIMIT 10</p>\n  <h4>Pattern 2</h4>\n  <div class=\"container\">\n\n      <p-table [value]=\"mod2\" >\n        <ng-template pTemplate=\"header\">\n            <tr>\n              <th>ID</th>\n              <th>name</th>\n              <th>Open</th>\n              <th>Close</th>\n              <th>Time</th>\n            </tr>\n        </ng-template>\n        <ng-template pTemplate=\"body\" let-bar>\n            <tr>\n              <td>{{ bar.bill_ID }}</td>\n              <td>\n                <a routerLink=\"/bars/{{ bar.name }}\">\n                  {{ bar.name }}\n                </a>\n              </td>\n              <td>{{ bar.open }}</td>\n              <td>{{ bar.close }}</td>\n              <td>\n                 \n                {{ bar.time }}\n              </td>\n  \n            </tr>\n        </ng-template>\n      </p-table>\n    </div>\n    <p>Query: SELECT \n        bills.bill_ID,\n        bars.name,\n        schedules.open,\n        schedules.close,\n        bills.time\n    FROM\n        bars\n            JOIN\n        schedules ON bars.bar_ID = schedules.bar_ID\n            JOIN\n        bills ON bars.bar_ID = bills.bar_ID\n    ORDER BY RAND()\n    LIMIT 10</p>"
 
 /***/ }),
 
@@ -1394,7 +1391,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ModificationComponent", function() { return ModificationComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
-/* harmony import */ var _bars_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../bars.service */ "./src/app/bars.service.ts");
+/* harmony import */ var _modifications_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../modifications.service */ "./src/app/modifications.service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1408,17 +1405,32 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 var ModificationComponent = /** @class */ (function () {
-    function ModificationComponent(barService, route) {
-        this.barService = barService;
+    function ModificationComponent(modificationService, route) {
+        this.modificationService = modificationService;
         this.route = route;
-        barService.getQ('select * from manfs').subscribe();
+        this.getMod2();
+        this.getMod1();
     }
-    ModificationComponent.prototype.addTodo = function (title) {
+    ModificationComponent.prototype.getMod1 = function () {
         var _this = this;
-        this.input = title;
-        this.barService.getQ(this.input).subscribe(function (data) {
-            console.log(_this.input);
-            _this.out = data;
+        this.modificationService.getModifications1().subscribe(function (data) {
+            console.log(data);
+            _this.mod1 = data;
+        });
+    };
+    ModificationComponent.prototype.getMod2 = function () {
+        var _this = this;
+        this.modificationService.getModifications2().subscribe(function (data) {
+            _this.mod2 = data;
+        });
+    };
+    ModificationComponent.prototype.onClick = function (inp) {
+        var _this = this;
+        this.query = inp;
+        console.log(this.query);
+        this.modificationService.getModification(this.query).subscribe(function (data) {
+            _this.out = JSON.stringify(data);
+            console.log(_this.out);
         });
     };
     ModificationComponent.prototype.ngOnInit = function () {
@@ -1429,10 +1441,62 @@ var ModificationComponent = /** @class */ (function () {
             template: __webpack_require__(/*! ./modification.component.html */ "./src/app/modification/modification.component.html"),
             styles: [__webpack_require__(/*! ./modification.component.css */ "./src/app/modification/modification.component.css")],
         }),
-        __metadata("design:paramtypes", [_bars_service__WEBPACK_IMPORTED_MODULE_2__["BarsService"],
+        __metadata("design:paramtypes", [_modifications_service__WEBPACK_IMPORTED_MODULE_2__["ModificationsService"],
             _angular_router__WEBPACK_IMPORTED_MODULE_1__["ActivatedRoute"]])
     ], ModificationComponent);
     return ModificationComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/modifications.service.ts":
+/*!******************************************!*\
+  !*** ./src/app/modifications.service.ts ***!
+  \******************************************/
+/*! exports provided: ModificationsService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ModificationsService", function() { return ModificationsService; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+var ModificationsService = /** @class */ (function () {
+    function ModificationsService(http) {
+        this.http = http;
+    }
+    ModificationsService.prototype.getModifications1 = function () {
+        return this.http.get('/api/modification1');
+    };
+    ModificationsService.prototype.getModifications2 = function () {
+        return this.http.get('/api/modification2');
+    };
+    ModificationsService.prototype.getModifications3 = function () {
+        return this.http.get('/api/modification3');
+    };
+    ModificationsService.prototype.getModification = function (query) {
+        return this.http.get('/api/modification/' + query);
+    };
+    ModificationsService = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])({
+            providedIn: 'root'
+        }),
+        __metadata("design:paramtypes", [_angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpClient"]])
+    ], ModificationsService);
+    return ModificationsService;
 }());
 
 

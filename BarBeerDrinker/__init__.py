@@ -8,11 +8,29 @@ from BarBeerDrinker import database
 
 app = Flask(__name__)
 
+@app.route("/api/modification1", methods=["GET"])
+def get_mods1():
+        rs = database.get_mods1()
+        return jsonify(rs)
 
-@app.route("/api/bar/modification/<title>", methods=["GET"])
-def find_Q(title):
-        out = database.find_Q(title)
+@app.route("/api/modification2", methods=["GET"])
+def get_mods2():
+        rs = database.get_mods2()
+        return jsonify(rs)
+
+@app.route("/api/modification3", methods=["GET"])
+def get_mods3():
+        rs = database.get_mods3()
+        return jsonify(rs)
+
+@app.route("/api/modification/<query>", methods=["GET"])
+def find_mod(query):  
+         
+        out = database.find_mod(query)
+       
         return jsonify(out)
+    
+
 
 # bar
 @app.route('/api/bar', methods=["GET"])
